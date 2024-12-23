@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/popover.tsx"
 import { cn } from "@/lib/utils.ts"
 import React from "react"
-import { useCart } from "./context/cartProvider"
+import { useCart } from "./providers/CartProvider"
 
 interface SeatProps extends React.HTMLAttributes<HTMLElement> {
 	seatId?: string

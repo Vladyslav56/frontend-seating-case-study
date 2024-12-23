@@ -1,4 +1,4 @@
-import { useCart } from "./context/cartProvider"
+import { useCart } from "./providers/CartProvider"
 import { Button } from "./ui/button"
 
 function Cart() {

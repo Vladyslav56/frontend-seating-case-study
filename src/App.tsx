@@ -2,7 +2,7 @@ import "./App.css"
 import Header from "./components/Header"
 import Content from "./components/Content"
 import Cart from "./components/Cart"
-import { CartProvider } from "./components/context/cartProvider"
+import { CartProvider } from "./components/providers/CartProvider"
 
 function App() {
 	return (
