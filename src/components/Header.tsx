@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu.tsx"
 
 function Header() {
-	const isLoggedIn = false
+	const isLoggedIn = true
 
 	return (
 		<nav className="sticky top-0 left-0 right-0 bg-white border-b border-zinc-200 flex justify-center">

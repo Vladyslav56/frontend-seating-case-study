@@ -15,38 +15,106 @@ interface Event {
 	place: string
 }
 
+interface TicketType {
+	id: string
+	name: string
+	price: number
+}
+
+interface Seat {
+	seatId: string
+	place: number
+	ticketTypeId: string
+}
+
+interface SeatRow {
+	seatRow: number
+	seats: Seat[]
+}
+
+interface TicketData {
+	ticketTypes: TicketType[]
+	seatRows: SeatRow[]
+}
+
 function Content() {
 	const [event, setEvent] = useState<Event | null>(null)
+	const [tickets, setTickets] = useState<TicketData | null>(null)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	useEffect(() => {
 		const fetchData = async () => {
+			setIsLoading(true)
 			try {
-				const res = await axios.get<Event>(`${BASE_URL}/event`)
-				setEvent(res.data)
+				const resEvent = await axios.get<Event>(`${BASE_URL}/event`)
+				setEvent(resEvent.data)
 				console.log(event)
+
+				if (resEvent.data) {
+					const resTickets = await axios.get<TicketData>(
+						`${BASE_URL}/event-tickets?eventId=${resEvent.data.eventId}`
+					)
+					setTickets(resTickets.data)
+					console.log(tickets)
+				}
 			} catch (err) {
 				console.error(err)
+			} finally {
+				setIsLoading(false)
 			}
 		}
 		fetchData()
 	}, [])
+
+	console.log(tickets)
+
+	const rowRender = (row: SeatRow) => {
+		const maxSeat = Math.max(
+			...(tickets?.seatRows.flatMap((row) =>
+				row.seats.map((seat) => seat.place)
+			) || [])
+		)
+		const seats = []
+
+		for (let i = 1; i <= maxSeat; i++) {
+			const seatData = row.seats.find((s) => s.place === i)
+			const ticketType = tickets?.ticketTypes.find(
+				(type) => type.id === seatData?.ticketTypeId
+			)
+			seats.push(
+				<Seat
+					key={i}
+					row={row.seatRow}
+					place={i}
+					ticketType={ticketType?.name}
+					price={ticketType?.price}
+					occupied={!seatData}
+				/>
+			)
+		}
+
+		return <div className="flex justify-center gap-2">{seats}</div>
+	}
 
 	return (
 		<main className="grow flex flex-col justify-center">
 			{/* inner content */}
 			<div className="max-w-screen-lg m-auto p-4 flex items-start grow gap-3 w-full">
 				{/* seating card */}
-				<div
-					className="bg-white rounded-md grow grid p-3 self-stretch shadow-sm"
-					style={{
-						gridTemplateColumns: "repeat(auto-fill, minmax(40px, 1fr))",
-						gridAutoRows: "40px",
-					}}
-				>
+				<div className="bg-white rounded-md grow flex flex-col gap-2 p-3 self-stretch shadow-sm">
 					{/*	seating map */}
-					{Array.from({ length: 100 }, (_, i) => (
+					{/* {Array.from({ length: 100 }, (_, i) => (
 						<Seat key={i} />
-					))}
+					))} */}
+					{/* {tickets &&
+						tickets.seatRows.map((row) =>
+							row.seats.map((seat) => <Seat key={seat.seatId} />)
+						)} */}
+					{isLoading ? (
+						<p>Loading</p>
+					) : (
+						tickets && tickets.seatRows.map((row) => rowRender(row))
+					)}
 				</div>
 
 				{/* event info */}
