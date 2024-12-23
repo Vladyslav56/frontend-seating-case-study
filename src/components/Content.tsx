@@ -84,6 +84,7 @@ function Content() {
 			seats.push(
 				<Seat
 					key={i}
+					seatId={seatData?.seatId}
 					row={row.seatRow}
 					place={i}
 					ticketType={ticketType?.name}
@@ -141,8 +142,17 @@ function Content() {
 					</p>
 					<p className="text-sm text-zinc-500">
 						Time: from{" "}
-						{event?.dateFrom && new Date(event.dateFrom).toLocaleTimeString()}{" "}
-						to {event?.dateTo && new Date(event.dateTo).toLocaleTimeString()}
+						{event?.dateFrom &&
+							new Date(event.dateFrom).toLocaleTimeString("cz-CZ", {
+								hour: "numeric",
+								minute: "numeric",
+							})}{" "}
+						to{" "}
+						{event?.dateTo &&
+							new Date(event.dateTo).toLocaleTimeString("cz-CZ", {
+								hour: "numeric",
+								minute: "numeric",
+							})}
 					</p>
 					<p className="text-sm text-zinc-500">Place: {event?.place}</p>
 
