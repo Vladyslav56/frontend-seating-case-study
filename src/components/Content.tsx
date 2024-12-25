@@ -37,7 +37,11 @@ interface TicketData {
 	seatRows: SeatRow[]
 }
 
-function Content() {
+interface ContentProps {
+	setEventId: (eventId: string) => void
+}
+
+function Content({ setEventId }: ContentProps) {
 	const [event, setEvent] = useState<Event | null>(null)
 	const [tickets, setTickets] = useState<TicketData | null>(null)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -48,14 +52,12 @@ function Content() {
 			try {
 				const resEvent = await axios.get<Event>(`${BASE_URL}/event`)
 				setEvent(resEvent.data)
-				console.log(event)
-
+				setEventId(resEvent.data.eventId)
 				if (resEvent.data) {
 					const resTickets = await axios.get<TicketData>(
 						`${BASE_URL}/event-tickets?eventId=${resEvent.data.eventId}`
 					)
 					setTickets(resTickets.data)
-					console.log(tickets)
 				}
 			} catch (err) {
 				console.error(err)
@@ -65,8 +67,6 @@ function Content() {
 		}
 		fetchData()
 	}, [])
-
-	console.log(tickets)
 
 	const rowRender = (row: SeatRow) => {
 		const maxSeat = Math.max(
@@ -88,13 +88,18 @@ function Content() {
 					row={row.seatRow}
 					place={i}
 					ticketType={ticketType?.name}
+					ticketTypeId={ticketType?.id}
 					price={ticketType?.price}
 					occupied={!seatData}
 				/>
 			)
 		}
 
-		return <div className="flex justify-center gap-2">{seats}</div>
+		return (
+			<div key={row.seatRow} className="flex justify-center gap-2">
+				{seats}
+			</div>
+		)
 	}
 
 	return (
@@ -104,15 +109,8 @@ function Content() {
 				{/* seating card */}
 				<div className="bg-white rounded-md grow flex flex-col gap-2 p-3 self-stretch shadow-sm">
 					{/*	seating map */}
-					{/* {Array.from({ length: 100 }, (_, i) => (
-						<Seat key={i} />
-					))} */}
-					{/* {tickets &&
-						tickets.seatRows.map((row) =>
-							row.seats.map((seat) => <Seat key={seat.seatId} />)
-						)} */}
 					{isLoading ? (
-						<p>Loading</p>
+						<p className="text-center">Loading...</p>
 					) : (
 						tickets && tickets.seatRows.map((row) => rowRender(row))
 					)}

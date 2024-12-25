@@ -9,9 +9,14 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx"
+import { useUser } from "./providers/UserProvider"
 
-function Header() {
-	const isLoggedIn = true
+interface HeaderProps {
+	onLoginClick: () => void
+}
+
+function Header({ onLoginClick }: HeaderProps) {
+	const { user, logout } = useUser()
 
 	return (
 		<nav className="sticky top-0 left-0 right-0 bg-white border-b border-zinc-200 flex justify-center">
@@ -25,7 +30,7 @@ function Header() {
 				<div className="bg-zinc-100 rounded-md h-8 w-[200px]" />
 				{/* user menu */}
 				<div className="max-w-[250px] w-full flex justify-end">
-					{isLoggedIn ? (
+					{user ? (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="ghost">
@@ -34,28 +39,37 @@ function Header() {
 											<AvatarImage
 												src={`https://source.boringavatars.com/marble/120/<user-email>?colors=25106C,7F46DB`}
 											/>
-											<AvatarFallback>CN</AvatarFallback>
+											<AvatarFallback>
+												{user.firstName[0]}
+												{user.lastName[0]}
+											</AvatarFallback>
 										</Avatar>
 
 										<div className="flex flex-col text-left">
-											<span className="text-sm font-medium">John Doe</span>
+											<span className="text-sm font-medium">
+												{user?.firstName} {user?.lastName}
+											</span>
 											<span className="text-xs text-zinc-500">
-												john.doe@nfctron.com
+												{user?.email}
 											</span>
 										</div>
 									</div>
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent className="w-[250px]">
-								<DropdownMenuLabel>John Doe</DropdownMenuLabel>
+								<DropdownMenuLabel>
+									{user?.firstName} {user?.lastName}
+								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
-									<DropdownMenuItem disabled>Logout</DropdownMenuItem>
+									<DropdownMenuItem onClick={() => logout()}>
+										Logout
+									</DropdownMenuItem>
 								</DropdownMenuGroup>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					) : (
-						<Button disabled variant="secondary">
+						<Button onClick={onLoginClick} variant="secondary">
 							Login or register
 						</Button>
 					)}

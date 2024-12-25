@@ -1,7 +1,11 @@
 import { useCart } from "./providers/CartProvider"
 import { Button } from "./ui/button"
 
-function Cart() {
+interface CartProps {
+	onCartClick: () => void
+}
+
+function Cart({ onCartClick }: CartProps) {
 	const { cart } = useCart()
 
 	const totalPrice = cart.reduce((total, item) => total + item.price, 0)
@@ -17,7 +21,7 @@ function Cart() {
 				</div>
 
 				{/* checkout button */}
-				<Button disabled variant="default">
+				<Button onClick={onCartClick} variant="default">
 					Checkout now
 				</Button>
 			</div>

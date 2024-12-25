@@ -10,7 +10,7 @@ interface User {
 
 interface UserContextType {
 	user: User | null
-	login: (email: string, password: string) => Promise<void>
+	login: (email: string, password: string) => Promise<boolean>
 	logout: () => void
 }
 
@@ -24,8 +24,10 @@ function UserProvider({ children }: { children: React.ReactNode }) {
 			const res = await axios.post(`${BASE_URL}/login`, { email, password })
 			const { user } = res.data
 			setUser(user)
+			return true
 		} catch (error) {
 			console.error(error)
+			return false
 		}
 	}
 

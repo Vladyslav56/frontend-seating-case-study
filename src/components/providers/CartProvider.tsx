@@ -5,6 +5,7 @@ interface CartItem {
 	row: number
 	place: number
 	ticketType: string
+	ticketTypeId: string
 	price: number
 }
 

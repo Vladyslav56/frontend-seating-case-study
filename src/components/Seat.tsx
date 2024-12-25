@@ -14,6 +14,7 @@ interface SeatProps extends React.HTMLAttributes<HTMLElement> {
 	place: number
 	occupied: boolean
 	ticketType?: string
+	ticketTypeId?: string
 	price?: number
 }
 
@@ -23,7 +24,12 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 		const isInCart = cart.some((seat) => seat.seatId === props.seatId)
 
 		const handleAddToCart = () => {
-			if (!props.seatId || !props.ticketType || !props.price) {
+			if (
+				!props.seatId ||
+				!props.ticketType ||
+				!props.price ||
+				!props.ticketTypeId
+			) {
 				return
 			}
 			const CartItem = {
@@ -31,6 +37,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 				row: props.row,
 				place: props.place,
 				ticketType: props.ticketType,
+				ticketTypeId: props.ticketTypeId,
 				price: props.price,
 			}
 			addToCart(CartItem)
@@ -66,7 +73,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 				<PopoverContent>
 					<pre>
 						{props.ticketType && <p>Ticket type: {props.ticketType}</p>}
-						{props.price && <p>Price: {props.price}</p>}
+						{props.price && <p>Price: {props.price} CZK</p>}
 						<p>Row: {props.row}</p>
 						<p>Seat: {props.place}</p>
 					</pre>
