@@ -31,7 +31,7 @@ export function Modal({ isOpen, onClose, content, eventId }: ModalProps) {
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
 				<Dialog.Content
-					className={`fixed bg-white p-6 inset-y-auto inset-1/3 rounded-lg shadow-md z-50 mx-auto`}
+					className={`fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white w-4/5 md:w-3/5 xl:w-1/3 p-6  rounded-lg shadow-md z-50 mx-auto`}
 				>
 					<Dialog.Title />
 					<Dialog.Description />

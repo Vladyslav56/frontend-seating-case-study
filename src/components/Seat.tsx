@@ -7,6 +7,7 @@ import {
 import { cn } from "@/lib/utils.ts"
 import React from "react"
 import { useCart } from "./providers/CartProvider"
+import { useTranslation } from "react-i18next"
 
 interface SeatProps extends React.HTMLAttributes<HTMLElement> {
 	seatId?: string
@@ -22,6 +23,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 	(props, ref) => {
 		const { cart, addToCart, removeFromCart } = useCart()
 		const isInCart = cart.some((seat) => seat.seatId === props.seatId)
+		const { t } = useTranslation()
 
 		const handleAddToCart = () => {
 			if (
@@ -72,22 +74,30 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 				</PopoverTrigger>
 				<PopoverContent>
 					<pre>
-						{props.ticketType && <p>Ticket type: {props.ticketType}</p>}
+						{props.ticketType && (
+							<p>
+								{t("ticketType")}: {props.ticketType}
+							</p>
+						)}
 						{props.price && <p>Price: {props.price} CZK</p>}
-						<p>Row: {props.row}</p>
-						<p>Seat: {props.place}</p>
+						<p>
+							{t("row")}: {props.row}
+						</p>
+						<p>
+							{t("place")}: {props.place}
+						</p>
 					</pre>
 
 					<footer className="flex flex-col">
 						{props.occupied ? (
-							<p className="text-center">Seat is already occupied</p>
+							<p className="text-center">{t("reserved")}</p>
 						) : isInCart ? (
 							<Button
 								onClick={() => handleRemoveFromCart()}
 								variant="destructive"
 								size="sm"
 							>
-								Remove from cart
+								{t("removeFromCart")}
 							</Button>
 						) : (
 							<Button
@@ -95,7 +105,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 								variant="default"
 								size="sm"
 							>
-								Add to cart
+								{t("addToCart")}
 							</Button>
 						)}
 					</footer>

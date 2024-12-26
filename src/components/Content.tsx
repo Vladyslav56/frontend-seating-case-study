@@ -3,6 +3,7 @@ import { Seat } from "./Seat"
 import { Button } from "./ui/button"
 import axios from "axios"
 import { BASE_URL } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface Event {
 	eventId: string
@@ -42,6 +43,7 @@ interface ContentProps {
 }
 
 function Content({ setEventId }: ContentProps) {
+	const { t } = useTranslation()
 	const [event, setEvent] = useState<Event | null>(null)
 	const [tickets, setTickets] = useState<TicketData | null>(null)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -53,12 +55,11 @@ function Content({ setEventId }: ContentProps) {
 				const resEvent = await axios.get<Event>(`${BASE_URL}/event`)
 				setEvent(resEvent.data)
 				setEventId(resEvent.data.eventId)
-				if (resEvent.data) {
-					const resTickets = await axios.get<TicketData>(
-						`${BASE_URL}/event-tickets?eventId=${resEvent.data.eventId}`
-					)
-					setTickets(resTickets.data)
-				}
+
+				const resTickets = await axios.get<TicketData>(
+					`${BASE_URL}/event-tickets?eventId=${resEvent.data.eventId}`
+				)
+				setTickets(resTickets.data)
 			} catch (err) {
 				console.error(err)
 			} finally {
@@ -68,12 +69,13 @@ function Content({ setEventId }: ContentProps) {
 		fetchData()
 	}, [])
 
+	const maxSeat = Math.max(
+		...(tickets?.seatRows.flatMap((row) =>
+			row.seats.map((seat) => seat.place)
+		) || [])
+	)
+
 	const rowRender = (row: SeatRow) => {
-		const maxSeat = Math.max(
-			...(tickets?.seatRows.flatMap((row) =>
-				row.seats.map((seat) => seat.place)
-			) || [])
-		)
 		const seats = []
 
 		for (let i = 1; i <= maxSeat; i++) {
@@ -96,28 +98,53 @@ function Content({ setEventId }: ContentProps) {
 		}
 
 		return (
-			<div key={row.seatRow} className="flex justify-center gap-2">
+			<div key={row.seatRow} className="flex gap-2 min-w-max">
 				{seats}
 			</div>
 		)
 	}
 
+	const handleAddToGoogleCalendar = () => {
+		if (event) {
+			const params = new URLSearchParams({
+				action: "TEMPLATE",
+				text: event.namePub,
+				dates: `${event.dateFrom.replace(
+					/-|:|\.\d+/g,
+					""
+				)}/${event.dateTo.replace(/-|:|\.\d+/g, "")}`,
+				details: event.description,
+				location: event.place,
+				sf: "true",
+				output: "xml",
+			})
+
+			const calendarUrl = `https://calendar.google.com/calendar/render?${params.toString()}`
+
+			window.open(calendarUrl, "_blank", "noopener, noreferrer")
+		}
+	}
+
 	return (
 		<main className="grow flex flex-col justify-center">
 			{/* inner content */}
-			<div className="max-w-screen-lg m-auto p-4 flex items-start grow gap-3 w-full">
+			<div className="max-w-screen-lg m-auto p-4 flex items-start grow gap-3 w-full flex-col-reverse md:flex-row">
 				{/* seating card */}
-				<div className="bg-white rounded-md grow flex flex-col gap-2 p-3 self-stretch shadow-sm">
+				<div
+					className={`bg-white rounded-md grow flex flex-col gap-2 p-3 self-stretch shadow-sm overflow-x-auto ${
+						maxSeat > 8 ? "items-start lg:items-center" : "items-center"
+					}`}
+				>
 					{/*	seating map */}
 					{isLoading ? (
-						<p className="text-center">Loading...</p>
+						<p className="text-center">{t("loading")}</p>
 					) : (
 						tickets && tickets.seatRows.map((row) => rowRender(row))
 					)}
 				</div>
 
 				{/* event info */}
-				<aside className="w-full max-w-sm bg-white rounded-md shadow-sm p-3 flex flex-col gap-2">
+				<aside className="w-full md:max-w-sm bg-white rounded-md shadow-sm p-3 flex flex-col gap-2">
 					{/* event header image placeholder */}
 					<div className="bg-zinc-100 rounded-md h-36 overflow-hidden">
 						<img
@@ -132,31 +159,41 @@ function Content({ setEventId }: ContentProps) {
 					</h1>
 					{/* event description */}
 					<p className="text-sm text-zinc-500">
-						Description: {event?.description}
+						<span className="text-zinc-900 font-semibold">
+							{t("description")}:
+						</span>{" "}
+						{event?.description}
 					</p>
 					<p className="text-sm text-zinc-500">
-						Date:{" "}
+						<span className="text-zinc-900 font-semibold">{t("date")}:</span>{" "}
 						{event?.dateFrom && new Date(event.dateFrom).toLocaleDateString()}
 					</p>
 					<p className="text-sm text-zinc-500">
-						Time: from{" "}
+						<span className="text-zinc-900 font-semibold">{t("time")}:</span>{" "}
+						{t("from")}{" "}
 						{event?.dateFrom &&
 							new Date(event.dateFrom).toLocaleTimeString("cz-CZ", {
 								hour: "numeric",
 								minute: "numeric",
 							})}{" "}
-						to{" "}
+						{t("to")}{" "}
 						{event?.dateTo &&
 							new Date(event.dateTo).toLocaleTimeString("cz-CZ", {
 								hour: "numeric",
 								minute: "numeric",
 							})}
 					</p>
-					<p className="text-sm text-zinc-500">Place: {event?.place}</p>
+					<p className="text-sm text-zinc-500">
+						{" "}
+						<span className="text-zinc-900 font-semibold">
+							{t("place")}:
+						</span>{" "}
+						{event?.place}
+					</p>
 
 					{/* add to calendar button */}
-					<Button variant="secondary" disabled>
-						Add to calendar
+					<Button variant="secondary" onClick={handleAddToGoogleCalendar}>
+						{t("addToCalendar")}
 					</Button>
 				</aside>
 			</div>

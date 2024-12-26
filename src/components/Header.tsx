@@ -10,6 +10,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx"
 import { useUser } from "./providers/UserProvider"
+import logo from "./img/nfctron-logo-dark.svg"
+import { useTranslation } from "react-i18next"
+import { changeLanguage } from "i18next"
 
 interface HeaderProps {
 	onLoginClick: () => void
@@ -17,19 +20,36 @@ interface HeaderProps {
 
 function Header({ onLoginClick }: HeaderProps) {
 	const { user, logout } = useUser()
+	const { t, i18n } = useTranslation()
 
 	return (
-		<nav className="sticky top-0 left-0 right-0 bg-white border-b border-zinc-200 flex justify-center">
+		<nav className="sticky top-0 left-0 right-0 bg-white border-b border-zinc-200 flex justify-around">
 			{/* inner content */}
-			<div className="max-w-screen-lg p-4 grow flex items-center justify-between gap-3">
+			<div className="max-w-screen-lg p-4 grow flex items-center justify-around gap-6 flex-wrap">
 				{/* application/author image/logo placeholder */}
-				<div className="max-w-[250px] w-full flex">
-					<div className="bg-zinc-100 rounded-md size-12" />
+				<div className="max-w-[250px] sm:w-20 flex">
+					{/* <div className="bg-zinc-100 rounded-md " /> */}
+					<img src={logo} alt="logo" />
 				</div>
 				{/* app/author title/name placeholder */}
-				<div className="bg-zinc-100 rounded-md h-8 w-[200px]" />
+				<div className="text-zinc-900 ">NFCtron Keynote</div>
+
+				<div>
+					<Button
+						variant={i18n.language === "en" ? "default" : "ghost"}
+						onClick={() => changeLanguage("en")}
+					>
+						EN
+					</Button>
+					<Button
+						variant={i18n.language === "cz" ? "default" : "ghost"}
+						onClick={() => changeLanguage("cz")}
+					>
+						CZ
+					</Button>
+				</div>
 				{/* user menu */}
-				<div className="max-w-[250px] w-full flex justify-end">
+				<div className="max-w-[250px] flex justify-end">
 					{user ? (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
@@ -63,14 +83,14 @@ function Header({ onLoginClick }: HeaderProps) {
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
 									<DropdownMenuItem onClick={() => logout()}>
-										Logout
+										{t("logout")}
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					) : (
 						<Button onClick={onLoginClick} variant="secondary">
-							Login or register
+							{t("login")}
 						</Button>
 					)}
 				</div>

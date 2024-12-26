@@ -6,6 +6,7 @@ import { useState } from "react"
 import { LoginContent } from "./LoginContent"
 import axios from "axios"
 import { BASE_URL } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface CartProcessProps {
 	step: number
@@ -28,6 +29,7 @@ export function CartProcess({
 }: CartProcessProps) {
 	const { cart, removeFromCart, clearCart } = useCart()
 	const { user } = useUser()
+	const { t } = useTranslation()
 	const [guestData, setGuestData] = useState<GuestData>({
 		firstName: "",
 		lastName: "",
@@ -79,21 +81,27 @@ export function CartProcess({
 		case 1:
 			return (
 				<div>
-					<h2 className="text-center text-black text-lg mb-4">Your cart</h2>
+					<h2 className="text-center text-black text-lg mb-4">
+						{t("yourCart")}
+					</h2>
 					<div>
 						{cart.length ? (
 							cart.map((item) => (
 								<div
 									key={item.seatId}
-									className="flex justify-between items-center p-2 mb-2 border-b border-black"
+									className="flex justify-between items-center p-2 mb-2 border-b border-black flex-wrap text-sm sm:text-base"
 								>
 									<div className="w-1/2">
-										<p>Ticket type: {item.ticketType}</p>
 										<p>
-											Row: {item.row} Place: {item.place}
+											{t("ticketType")}: {item.ticketType}
+										</p>
+										<p>
+											{t("row")}: {item.row} {t("place")}: {item.place}
 										</p>
 									</div>
-									<p>Price: {item.price} CZK</p>
+									<p>
+										{t("price")}: {item.price} CZK
+									</p>
 									<Cross1Icon
 										className="cursor-pointer"
 										onClick={() => removeFromCart(item.seatId)}
@@ -101,28 +109,28 @@ export function CartProcess({
 								</div>
 							))
 						) : (
-							<p className="mb-2 text-black">Cart is empty</p>
+							<p className="mb-2 text-black">{t("empty")}</p>
 						)}
 					</div>
-					<p className="mb-4">
-						Total price: {cart.reduce((total, item) => total + item.price, 0)}{" "}
-						CZK
+					<p className="mb-4 text-zinc-900">
+						{t("totalPrice")}:{" "}
+						{cart.reduce((total, item) => total + item.price, 0)} CZK
 					</p>
-					<div className="flex justify-between">
+					<div className="flex justify-around">
 						<Button
 							disabled={cart.length === 0}
-							className="w-56"
+							className="w-5/12"
 							variant="destructive"
 							onClick={() => clearCart()}
 						>
-							Clear cart
+							{t("clearCart")}
 						</Button>
 						<Button
 							disabled={cart.length === 0}
-							className="w-56"
+							className="w-5/12"
 							onClick={() => goToStep(2)}
 						>
-							Proceed to Checkout
+							{t("order")}
 						</Button>
 					</div>
 				</div>
@@ -141,38 +149,45 @@ export function CartProcess({
 						/>
 						<div className="mb-4 border-b border-black pb-4">
 							<h2 className="text-center text-black text-lg mb-4">
-								Enter your data
+								{t("enterData")}
 							</h2>
 							<form className="flex flex-col gap-4 w-2/3 mx-auto">
 								<input
 									type="text"
 									name="firstName"
-									placeholder="Enter first name"
+									placeholder={t("enterFirstName")}
 									value={guestData.firstName}
 									onChange={handleChange}
 									required
-									className="bg-white p-1 border rounded border-black"
+									className="bg-white py-1 px-2 border rounded-md border-zinc-500"
 								/>
 								<input
 									type="text"
 									name="lastName"
-									placeholder="Enter last name"
+									placeholder={t("enterLastName")}
 									value={guestData.lastName}
 									onChange={handleChange}
 									required
-									className="bg-white p-1 border rounded border-black"
+									className="bg-white py-1 px-2 border rounded-md border-zinc-500"
 								/>
 								<input
 									type="email"
 									name="email"
-									placeholder="Enter email"
+									placeholder={t("enterEmail")}
 									value={guestData.email}
 									onChange={handleChange}
 									required
-									className="bg-white p-1 border rounded border-black"
+									className="bg-white py-1 px-2 border rounded-md border-zinc-500"
 								/>
-								<Button onClick={() => goToStep(3)}>
-									Continue like a guest
+								<Button
+									onClick={() =>
+										guestData.email &&
+										guestData.firstName &&
+										guestData.lastName &&
+										goToStep(3)
+									}
+								>
+									{t("guestContinue")}
 								</Button>
 							</form>
 						</div>
@@ -194,22 +209,24 @@ export function CartProcess({
 						className="absolute w-6 h-6 top-5 left-5 cursor-pointer hover:opacity-60"
 					/>
 					<h2 className="text-center text-black text-lg mb-4">
-						Your order data
+						{t("orderData")}
 					</h2>
 					<p>
-						Name:{" "}
+						{t("name")}:{" "}
 						{user
 							? user.firstName + " " + user.lastName
 							: guestData.firstName + " " + guestData.lastName}{" "}
 					</p>
 					<p>Email: {user ? user.email : guestData.email}</p>
-					<p>Number of tickets: {cart.length}</p>
+					<p>
+						{t("ticketsNumber")}: {cart.length}
+					</p>
 					<p>
 						Total price: {cart.reduce((total, item) => total + item.price, 0)}{" "}
 						CZK
 					</p>
 					<Button disabled={isLoading} onClick={() => handleOrderSubmit()}>
-						{isLoading ? "Processing" : "Confirm order"}
+						{isLoading ? t("process") : t("confirm")}
 					</Button>
 				</div>
 			)
@@ -219,21 +236,28 @@ export function CartProcess({
 					<h2 className="text-center text-green-500 text-lg mb-4">
 						{orderResults?.message}
 					</h2>
-					<p>Order ID: {orderResults?.orderId}</p>
 					<p>
-						Name: {orderResults?.user.firstName} {orderResults?.user.lastName}
+						{t("orderId")}: {orderResults?.orderId}
 					</p>
-					<p>Tickets number: {orderResults?.tickets.length}</p>
-					<p>Total price: {orderResults?.totalAmount} CZK</p>
-					<Button onClick={() => (onClose(), clearCart())}>Close</Button>
+					<p>
+						{t("name")}: {orderResults?.user.firstName}{" "}
+						{orderResults?.user.lastName}
+					</p>
+					<p>
+						{t("ticketsNumber")}: {orderResults?.tickets.length}
+					</p>
+					<p>
+						{t("totalPrice")}: {orderResults?.totalAmount} CZK
+					</p>
+					<Button onClick={() => (onClose(), clearCart())}>{t("close")}</Button>
 				</div>
 			) : (
 				<div>
 					<h2 className="text-center text-red-500 text-lg mb-4">
-						Something went wrong
+						{t("somethingWrong")}
 					</h2>
-					<p>Please try again</p>
-					<Button onClick={() => onClose()}>Close</Button>
+					<p>{t("tryAgain")}</p>
+					<Button onClick={() => onClose()}>{t("close")}</Button>
 				</div>
 			)
 	}
