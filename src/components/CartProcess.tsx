@@ -8,17 +8,19 @@ import axios from "axios"
 import { BASE_URL } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 
+// Guest data interface
+interface GuestData {
+	firstName: string
+	lastName: string
+	email: string
+}
+
+// Props interface
 interface CartProcessProps {
 	step: number
 	onClose: () => void
 	goToStep: (step: number) => void
 	eventId: string | null
-}
-
-interface GuestData {
-	firstName: string
-	lastName: string
-	email: string
 }
 
 export function CartProcess({
@@ -27,9 +29,11 @@ export function CartProcess({
 	goToStep,
 	eventId,
 }: CartProcessProps) {
+	// User and cart contexts, translation hooks
+	const { t } = useTranslation()
 	const { cart, removeFromCart, clearCart } = useCart()
 	const { user } = useUser()
-	const { t } = useTranslation()
+	// Guest data, order results and loading states
 	const [guestData, setGuestData] = useState<GuestData>({
 		firstName: "",
 		lastName: "",
@@ -48,6 +52,7 @@ export function CartProcess({
 	}>(null)
 	const [isLoading, setIsLoading] = useState(false)
 
+	// Guest data change function
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setGuestData({
 			...guestData,
@@ -55,9 +60,11 @@ export function CartProcess({
 		})
 	}
 
+	// Order submit function
 	const handleOrderSubmit = async () => {
 		setIsLoading(true)
 		try {
+			// Payload formation
 			const payload = {
 				eventId: eventId,
 				tickets: cart.map((item) => ({
@@ -67,6 +74,7 @@ export function CartProcess({
 				user: user || guestData,
 			}
 
+			// Fetching order
 			const res = await axios.post(`${BASE_URL}/order`, payload)
 			setOrderResults(res.data)
 			goToStep(4)
@@ -77,16 +85,21 @@ export function CartProcess({
 		}
 	}
 
+	// Cart process steps switcher
 	switch (step) {
+		// Cart overview step
 		case 1:
 			return (
+				// Inner content
 				<div>
 					<h2 className="text-center text-black text-lg mb-4">
 						{t("yourCart")}
 					</h2>
+					{/* Cart items mapping */}
 					<div>
 						{cart.length ? (
 							cart.map((item) => (
+								// Cart item description
 								<div
 									key={item.seatId}
 									className="flex justify-between items-center p-2 mb-2 border-b border-black flex-wrap text-sm sm:text-base"
@@ -102,6 +115,7 @@ export function CartProcess({
 									<p>
 										{t("price")}: {item.price} CZK
 									</p>
+									{/* Remove from cart button */}
 									<Cross1Icon
 										className="cursor-pointer"
 										onClick={() => removeFromCart(item.seatId)}
@@ -109,14 +123,17 @@ export function CartProcess({
 								</div>
 							))
 						) : (
+							// Cart is empty message
 							<p className="mb-2 text-black">{t("empty")}</p>
 						)}
 					</div>
+					{/* Total price */}
 					<p className="mb-4 text-zinc-900">
 						{t("totalPrice")}:{" "}
 						{cart.reduce((total, item) => total + item.price, 0)} CZK
 					</p>
 					<div className="flex justify-around">
+						{/* Clear cart button */}
 						<Button
 							disabled={cart.length === 0}
 							className="w-5/12"
@@ -125,6 +142,7 @@ export function CartProcess({
 						>
 							{t("clearCart")}
 						</Button>
+						{/* Next step button */}
 						<Button
 							disabled={cart.length === 0}
 							className="w-5/12"
@@ -135,22 +153,29 @@ export function CartProcess({
 					</div>
 				</div>
 			)
+
+		// Continue like a guest or login step
 		case 2:
+			// Skip step if user already logged in
 			if (user) {
 				goToStep(3)
 				console.log(step)
 				return null
 			} else {
 				return (
+					// Inner content
 					<div>
+						{/* Previous step button */}
 						<ArrowLeftIcon
 							onClick={() => goToStep(1)}
 							className="absolute w-6 h-6 top-5 left-5 cursor-pointer hover:opacity-60"
 						/>
+						{/* Continue like a guest content */}
 						<div className="mb-4 border-b border-black pb-4">
 							<h2 className="text-center text-black text-lg mb-4">
 								{t("enterData")}
 							</h2>
+							{/* Continue like a guest form */}
 							<form className="flex flex-col gap-4 w-2/3 mx-auto">
 								<input
 									type="text"
@@ -179,6 +204,7 @@ export function CartProcess({
 									required
 									className="bg-white py-1 px-2 border rounded-md border-zinc-500"
 								/>
+								{/* Continue like a guest button */}
 								<Button
 									onClick={() =>
 										guestData.email &&
@@ -192,16 +218,19 @@ export function CartProcess({
 							</form>
 						</div>
 						<div>
-							{" "}
+							{/* Login form */}
 							<LoginContent></LoginContent>
 						</div>
 					</div>
 				)
 			}
 
+		// Order data overview step
 		case 3:
 			return (
+				// Inner content
 				<div className="flex flex-col gap-4">
+					{/* Previous step button */}
 					<ArrowLeftIcon
 						onClick={() => {
 							user ? goToStep(1) : goToStep(2)
@@ -211,6 +240,7 @@ export function CartProcess({
 					<h2 className="text-center text-black text-lg mb-4">
 						{t("orderData")}
 					</h2>
+					{/* Order data */}
 					<p>
 						{t("name")}:{" "}
 						{user
@@ -225,13 +255,18 @@ export function CartProcess({
 						Total price: {cart.reduce((total, item) => total + item.price, 0)}{" "}
 						CZK
 					</p>
+					{/* Order button */}
 					<Button disabled={isLoading} onClick={() => handleOrderSubmit()}>
 						{isLoading ? t("process") : t("confirm")}
 					</Button>
 				</div>
 			)
+
+		// Order results step
 		case 4:
+			// Is order success check
 			return orderResults ? (
+				// Success order overview
 				<div className="flex flex-col gap-4">
 					<h2 className="text-center text-green-500 text-lg mb-4">
 						{orderResults?.message}
@@ -249,14 +284,17 @@ export function CartProcess({
 					<p>
 						{t("totalPrice")}: {orderResults?.totalAmount} CZK
 					</p>
+					{/* Close modal button */}
 					<Button onClick={() => (onClose(), clearCart())}>{t("close")}</Button>
 				</div>
 			) : (
+				// Order error message
 				<div>
 					<h2 className="text-center text-red-500 text-lg mb-4">
 						{t("somethingWrong")}
 					</h2>
 					<p>{t("tryAgain")}</p>
+					{/* Close modal button */}
 					<Button onClick={() => onClose()}>{t("close")}</Button>
 				</div>
 			)

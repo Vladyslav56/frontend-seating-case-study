@@ -2,12 +2,14 @@ import { BASE_URL } from "@/lib/utils"
 import axios from "axios"
 import { createContext, useContext, useState } from "react"
 
+// User data interface
 interface User {
 	firstName: string
 	lastName: string
 	email: string
 }
 
+// User context interface
 interface UserContextType {
 	user: User | null
 	login: (email: string, password: string) => Promise<boolean>
@@ -17,8 +19,10 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 function UserProvider({ children }: { children: React.ReactNode }) {
+	// User state
 	const [user, setUser] = useState<User | null>(null)
 
+	// User fetching function
 	const login = async (email: string, password: string) => {
 		try {
 			const res = await axios.post(`${BASE_URL}/login`, { email, password })
@@ -31,6 +35,7 @@ function UserProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	// Logout function
 	const logout = () => {
 		setUser(null)
 	}
@@ -42,6 +47,7 @@ function UserProvider({ children }: { children: React.ReactNode }) {
 	)
 }
 
+// User context hook
 function useUser(): UserContextType {
 	const context = useContext(UserContext)
 	if (!context) {

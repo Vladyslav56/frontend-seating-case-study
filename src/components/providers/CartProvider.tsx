@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react"
 
+// Cart item interface
 interface CartItem {
 	seatId: string
 	row: number
@@ -9,6 +10,7 @@ interface CartItem {
 	price: number
 }
 
+// Cart context interface
 interface CartContextType {
 	cart: CartItem[]
 	addToCart: (item: CartItem) => void
@@ -19,16 +21,20 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 function CartProvider({ children }: { children: React.ReactNode }) {
+	// Cart state
 	const [cart, setCart] = useState<CartItem[]>([])
 
+	// Add item to cart function
 	const addToCart = (item: CartItem) => {
 		setCart((prev) => [...prev, item])
 	}
 
+	// Remove item from cart function
 	const removeFromCart = (seatId: string) => {
 		setCart((prev) => prev.filter((item) => item.seatId !== seatId))
 	}
 
+	// Clear cart function
 	const clearCart = () => {
 		setCart([])
 	}
@@ -42,6 +48,7 @@ function CartProvider({ children }: { children: React.ReactNode }) {
 	)
 }
 
+// Cart context hook
 function useCart(): CartContextType {
 	const context = useContext(CartContext)
 	if (!context) {

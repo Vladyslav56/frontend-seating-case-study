@@ -8,30 +8,39 @@ import { useState } from "react"
 import { Modal } from "./components/Modal"
 
 function App() {
+	// Is modal open, modal content and event ID states
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [modalContent, setModalContent] = useState<"login" | "cart" | null>(
 		null
 	)
 	const [eventId, setEventId] = useState<string | null>(null)
 
+	// Open modal function
 	const openModal = (content: "login" | "cart") => {
 		setModalContent(content)
 		setIsModalOpen(true)
 	}
 
+	// Close modal function
 	const closeModal = () => {
 		setModalContent(null)
 		setIsModalOpen(false)
 	}
 
 	return (
+		// User provider
 		<UserProvider>
+			{/* Cart provider */}
 			<CartProvider>
+				{/* Page content */}
 				<div className="flex flex-col grow">
+					{/* Header component */}
 					<Header onLoginClick={() => openModal("login")} />
+					{/* Content component */}
 					<Content setEventId={setEventId} />
-					{/* bottom cart affix (wrapper) */}
+					{/* Cart component */}
 					<Cart onCartClick={() => openModal("cart")} />
+					{/* Modal window */}
 					<Modal
 						isOpen={isModalOpen}
 						onClose={closeModal}

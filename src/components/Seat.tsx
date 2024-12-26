@@ -9,6 +9,7 @@ import React from "react"
 import { useCart } from "./providers/CartProvider"
 import { useTranslation } from "react-i18next"
 
+// Props interface
 interface SeatProps extends React.HTMLAttributes<HTMLElement> {
 	seatId?: string
 	row: number
@@ -21,10 +22,14 @@ interface SeatProps extends React.HTMLAttributes<HTMLElement> {
 
 export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 	(props, ref) => {
-		const { cart, addToCart, removeFromCart } = useCart()
-		const isInCart = cart.some((seat) => seat.seatId === props.seatId)
+		// Cart context and translation hooks
 		const { t } = useTranslation()
+		const { cart, addToCart, removeFromCart } = useCart()
 
+		// Is item in cart check
+		const isInCart = cart.some((seat) => seat.seatId === props.seatId)
+
+		// Add to cart function
 		const handleAddToCart = () => {
 			if (
 				!props.seatId ||
@@ -45,6 +50,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 			addToCart(CartItem)
 		}
 
+		// Romove from cart function
 		const handleRemoveFromCart = () => {
 			if (!props.seatId) {
 				return
@@ -55,6 +61,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 		return (
 			<Popover>
 				<PopoverTrigger>
+					{/* Seat button */}
 					<div
 						className={cn(
 							`size-8 rounded-full transition-color ${
@@ -73,6 +80,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 					</div>
 				</PopoverTrigger>
 				<PopoverContent>
+					{/* Seat description */}
 					<pre>
 						{props.ticketType && (
 							<p>
@@ -88,10 +96,13 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 						</p>
 					</pre>
 
+					{/* Seat footer  */}
 					<footer className="flex flex-col">
 						{props.occupied ? (
+							// Reserved message
 							<p className="text-center">{t("reserved")}</p>
 						) : isInCart ? (
+							// Add to cart button
 							<Button
 								onClick={() => handleRemoveFromCart()}
 								variant="destructive"
@@ -100,6 +111,7 @@ export const Seat = React.forwardRef<HTMLDivElement, SeatProps>(
 								{t("removeFromCart")}
 							</Button>
 						) : (
+							// Remove from cart button
 							<Button
 								onClick={() => handleAddToCart()}
 								variant="default"
